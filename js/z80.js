@@ -41,7 +41,7 @@ Z80 = {
 
   _ops: {
     /*--- Load/store ---*/
-    LDrr_bb: function() { Z80._r.b=Z80._r.b; Z80._r.m=1; },
+    LDrr_bb: function() { Z80._r.b=Z80._r.b; Z80.g=1; },
     LDrr_bc: function() { Z80._r.b=Z80._r.c; Z80._r.m=1; },
     LDrr_bd: function() { Z80._r.b=Z80._r.d; Z80._r.m=1; },
     LDrr_be: function() { Z80._r.b=Z80._r.e; Z80._r.m=1; },
@@ -148,6 +148,11 @@ Z80 = {
 
     LDHLSPn: function() { var i=MMU.rb(Z80._r.pc); if(i>127) i=-((~i+1)&255); Z80._r.pc++; i+=Z80._r.sp; Z80._r.h=(i>>8)&255; Z80._r.l=i&255; Z80._r.m=3; },
 
+    LDSPHL: function() {
+      Z80._r.sp = (Z80._r.h<<8)+Z80._r.l;
+      Z80._r.m = 2; //TODO Is this right?!?
+    },
+
     SWAPr_b: function() { var tr=Z80._r.b; Z80._r.b=((tr&0xF)<<4)|((tr&0xF0)>>4); Z80._r.f=Z80._r.b?0:0x80; Z80._r.m=1; },
     SWAPr_c: function() { var tr=Z80._r.c; Z80._r.c=((tr&0xF)<<4)|((tr&0xF0)>>4); Z80._r.f=Z80._r.c?0:0x80; Z80._r.m=1; },
     SWAPr_d: function() { var tr=Z80._r.d; Z80._r.d=((tr&0xF)<<4)|((tr&0xF0)>>4); Z80._r.f=Z80._r.d?0:0x80; Z80._r.m=1; },
@@ -155,6 +160,14 @@ Z80 = {
     SWAPr_h: function() { var tr=Z80._r.h; Z80._r.h=((tr&0xF)<<4)|((tr&0xF0)>>4); Z80._r.f=Z80._r.h?0:0x80; Z80._r.m=1; },
     SWAPr_l: function() { var tr=Z80._r.l; Z80._r.l=((tr&0xF)<<4)|((tr&0xF0)>>4); Z80._r.f=Z80._r.l?0:0x80; Z80._r.m=1; },
     SWAPr_a: function() { var tr=Z80._r.a; Z80._r.a=((tr&0xF)<<4)|((tr&0xF0)>>4); Z80._r.f=Z80._r.a?0:0x80; Z80._r.m=1; },
+    
+    SWAPHLm: function() {
+      var i = MMU.rb((Z80._r.h<<8)+Z80._r.l);
+      i = ((i&0xF)<<4)|((i&0xF0)>>4);
+      MMU.wb((Z80._r.h<<8)+Z80._r.l,i);
+      Z80._r.f = i?0:0x80;
+      Z80._r.m = 2;
+    },
 
     /*--- Data processing ---*/
     ADDr_b: function() { var a=Z80._r.a; Z80._r.a+=Z80._r.b; Z80._r.f=(Z80._r.a>255)?0x10:0; Z80._r.a&=255; if(!Z80._r.a) Z80._r.f|=0x80; if((Z80._r.a^Z80._r.b^a)&0x10) Z80._r.f|=0x20; Z80._r.m=1; },
@@ -741,7 +754,7 @@ Z80._map = [
   // F0
   Z80._ops.LDAIOn,	Z80._ops.POPAF,		Z80._ops.LDAIOC,	Z80._ops.DI,
   Z80._ops.XX,		Z80._ops.PUSHAF,	Z80._ops.ORn,		Z80._ops.RST30,
-  Z80._ops.LDHLSPn,	Z80._ops.XX,		Z80._ops.LDAmm,		Z80._ops.EI,
+  Z80._ops.LDHLSPn,	Z80._ops.LDSPHL,	Z80._ops.LDAmm,		Z80._ops.EI,
   Z80._ops.XX,		Z80._ops.XX,		Z80._ops.CPn,		Z80._ops.RST38
 ];
 
@@ -763,7 +776,7 @@ Z80._cbmap = [
   Z80._ops.SRAr_h,	Z80._ops.SRAr_l,	Z80._ops.XX,		Z80._ops.SRAr_a,
   // CB30
   Z80._ops.SWAPr_b,	Z80._ops.SWAPr_c,	Z80._ops.SWAPr_d,	Z80._ops.SWAPr_e,
-  Z80._ops.SWAPr_h,	Z80._ops.SWAPr_l,	Z80._ops.XX,		Z80._ops.SWAPr_a,
+  Z80._ops.SWAPr_h,	Z80._ops.SWAPr_l,	Z80._ops.SWAPHLm,	Z80._ops.SWAPr_a,
   Z80._ops.SRLr_b,	Z80._ops.SRLr_c,	Z80._ops.SRLr_d,	Z80._ops.SRLr_e,
   Z80._ops.SRLr_h,	Z80._ops.SRLr_l,	Z80._ops.XX,		Z80._ops.SRLr_a,
   // CB40
