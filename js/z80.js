@@ -749,7 +749,7 @@ Z80._map = [
   Z80._ops.RETZ,	Z80._ops.RET,		Z80._ops.JPZnn,		Z80._ops.MAPcb,
   Z80._ops.CALLZnn,	Z80._ops.CALLnn,	Z80._ops.ADCn,		Z80._ops.RST08,
   // D0
-  Z80._ops.RETNC,	Z80._ops.POPDE,		Z80._ops.JPNCnn,	Z80._ops.XX,
+  Z80._ops.RETNC,	Z80._ops.POPDE,		Z80._ops.JPNCnn,	Z80._ops.NOP, //TODO May be incorrect!
   Z80._ops.CALLNCnn,	Z80._ops.PUSHDE,	Z80._ops.SUBn,		Z80._ops.RST10,
   Z80._ops.RETC,	Z80._ops.RETI,		Z80._ops.JPCnn,		Z80._ops.XX,
   Z80._ops.CALLCnn,	Z80._ops.XX,		Z80._ops.SBCn,		Z80._ops.RST18,

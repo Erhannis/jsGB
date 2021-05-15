@@ -110,6 +110,9 @@ p.fps { float:right; text-align:right; }
    Break at <input type="text" id="breakpoint">
   </p>
   <script type="text/javascript">
+hx = function(n) {
+  return n.toString(16);
+}
 jsGB = {
   run_interval: 0,
   trace: '',
@@ -123,7 +126,11 @@ jsGB = {
       else
       {
       //  Z80._r.r = (Z80._r.r+1) & 127;
-        Z80._map[MMU.rb(Z80._r.pc++)]();
+        try {
+          Z80._map[MMU.rb(Z80._r.pc++)]();
+        } catch (err) {
+          console.log(err);
+        }
         Z80._r.pc &= 65535;
       }
       if(Z80._r.ime && MMU._ie && MMU._if)
